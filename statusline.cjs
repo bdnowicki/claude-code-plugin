@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Claude Code Statusline
-// Shows: model | current task | directory:branch | context | session usage
+// Shows: model | current task | directory:branch | context | 5h rate limit | 7d rate limit
 
 const fs = require('fs');
 const path = require('path');
@@ -10,7 +10,7 @@ const { execSync, spawn } = require('child_process');
 const homeDir = os.homedir();
 const cacheFile = path.join(homeDir, '.claude', 'cache', 'usage-ratelimit.json');
 
-// Background: fetch rate limit data from API and cache it
+// Background: fetch rate limit data from API and cache it (fallback when rate_limits not in stdin)
 function refreshUsageCache() {
   const cacheDir = path.join(homeDir, '.claude', 'cache');
   if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
@@ -64,6 +64,52 @@ function readUsageCache() {
   } catch (e) { return null; }
 }
 
+// Format a reset timestamp as a short local time string (e.g. "3:45pm")
+function formatResetTime(resetsAt) {
+  if (!resetsAt || resetsAt <= 0) return '';
+  const d = new Date(resetsAt * 1000);
+  const h = d.getHours();
+  const m = d.getMinutes();
+  const ampm = h >= 12 ? 'pm' : 'am';
+  const h12 = h % 12 || 12;
+  return m > 0
+    ? `${h12}:${String(m).padStart(2, '0')}${ampm}`
+    : `${h12}${ampm}`;
+}
+
+// Format a reset timestamp with date for 7d window (e.g. "Sat 26.03 3:45pm")
+function formatResetDate(resetsAt) {
+  if (!resetsAt || resetsAt <= 0) return '';
+  const d = new Date(resetsAt * 1000);
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const day = days[d.getDay()];
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const h = d.getHours();
+  const m = d.getMinutes();
+  const ampm = h >= 12 ? 'pm' : 'am';
+  const h12 = h % 12 || 12;
+  const time = m > 0
+    ? `${h12}:${String(m).padStart(2, '0')}${ampm}`
+    : `${h12}${ampm}`;
+  return `${day} ${dd}.${mm} ${time}`;
+}
+
+// Build a coloured bar segment for a given percentage + reset time
+function buildRateBar(pct, resetsAt) {
+  const filled = Math.floor(pct / 10);
+  const bar = '█'.repeat(filled) + '░'.repeat(10 - filled);
+
+  let color;
+  if (pct < 50)      color = '\x1b[32m';       // green
+  else if (pct < 75) color = '\x1b[33m';       // yellow
+  else if (pct < 90) color = '\x1b[38;5;208m'; // orange
+  else               color = '\x1b[31m';       // red
+
+  const resetStr = resetsAt ? ` ↻ ${formatResetTime(resetsAt)}` : '';
+  return `${color}${bar} ${pct}%${resetStr}\x1b[0m`;
+}
+
 // Read JSON from stdin
 let input = '';
 process.stdin.setEncoding('utf8');
@@ -91,45 +137,54 @@ process.stdin.on('end', () => {
       else                 ctx = ` \x1b[5;31m💀 ${bar} ${used}%\x1b[0m`;
     }
 
-    // Session usage from cached rate limit data
+    // Rate limit display — prefer data.rate_limits (native Claude Code field),
+    // fall back to the self-fetched API cache for backwards compatibility.
     let usageLabel = '';
-    const usage = readUsageCache();
-    if (usage) {
-      const utilization = parseFloat(usage['5h-utilization'] || '0');
-      const resetTs = parseInt(usage['5h-reset'] || '0', 10);
-      const pct = Math.round(utilization * 100);
+    const rateLimits = data.rate_limits;
 
-      // Progress bar (10 segments, same style as context window)
-      const filled = Math.floor(pct / 10);
-      const bar = '█'.repeat(filled) + '░'.repeat(10 - filled);
+    if (rateLimits) {
+      // Native rate_limits field available — use it directly
+      const parts = [];
 
-      // Color based on utilization
-      let color;
-      if (pct < 50)       color = '\x1b[32m';  // green
-      else if (pct < 75)  color = '\x1b[33m';  // yellow
-      else if (pct < 90)  color = '\x1b[38;5;208m'; // orange
-      else                color = '\x1b[31m';  // red
-
-      // Format reset time with timezone
-      let resetStr = '';
-      if (resetTs > 0) {
-        const d = new Date(resetTs * 1000);
-        const h = d.getHours();
-        const m = d.getMinutes();
-        const ampm = h >= 12 ? 'pm' : 'am';
-        const h12 = h % 12 || 12;
-        const time = m > 0 ? `${h12}:${String(m).padStart(2,'0')}${ampm}` : `${h12}${ampm}`;
-        resetStr = ` ↻ ${time}`;
+      if (rateLimits.five_hour != null) {
+        const pct = Math.round(rateLimits.five_hour.used_percentage);
+        const resetsAt = rateLimits.five_hour.resets_at || 0;
+        parts.push(`5h: ${buildRateBar(pct, resetsAt)}`);
       }
 
-      usageLabel = ` │ ${color}${bar} ${pct}%${resetStr}\x1b[0m`;
+      if (rateLimits.seven_day != null) {
+        const pct = Math.round(rateLimits.seven_day.used_percentage);
+        const resetsAt = rateLimits.seven_day.resets_at || 0;
+        const resetStr = resetsAt > 0 ? ` ↻ ${formatResetDate(resetsAt)}` : '';
+        const filled = Math.floor(pct / 10);
+        const bar7 = '█'.repeat(filled) + '░'.repeat(10 - filled);
+        let color7;
+        if (pct < 50)      color7 = '\x1b[32m';
+        else if (pct < 75) color7 = '\x1b[33m';
+        else if (pct < 90) color7 = '\x1b[38;5;208m';
+        else               color7 = '\x1b[31m';
+        parts.push(`7d: ${color7}${bar7} ${pct}%${resetStr}\x1b[0m`);
+      }
 
-      // Refresh cache if stale (older than 2 minutes)
-      const age = Date.now() - (usage.fetched_at || 0);
-      if (age > 120000) refreshUsageCache();
+      if (parts.length > 0) {
+        usageLabel = ' │ ' + parts.join(' │ ');
+      }
     } else {
-      // No cache yet — kick off first fetch
-      refreshUsageCache();
+      // Fallback: use locally cached API data (pre-native-field sessions)
+      const usage = readUsageCache();
+      if (usage) {
+        const utilization = parseFloat(usage['5h-utilization'] || '0');
+        const resetTs = parseInt(usage['5h-reset'] || '0', 10);
+        const pct = Math.round(utilization * 100);
+        usageLabel = ` │ 5h: ${buildRateBar(pct, resetTs)}`;
+
+        // Refresh cache if stale (older than 2 minutes)
+        const age = Date.now() - (usage.fetched_at || 0);
+        if (age > 120000) refreshUsageCache();
+      } else {
+        // No cache yet — kick off first fetch
+        refreshUsageCache();
+      }
     }
 
     // Current task from todos
@@ -169,3 +224,4 @@ process.stdin.on('end', () => {
     // Silent fail
   }
 });
+ 
