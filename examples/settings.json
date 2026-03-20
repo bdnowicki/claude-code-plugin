@@ -1,0 +1,9 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": "node \"<path-to-plugin>/plugins/statusline/scripts/statusline.cjs\""
+  },
+  "enabledPlugins": {
+    "statusline@bn-claude-tools": true
+  }
+}

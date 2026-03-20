@@ -1,0 +1,11 @@
+{
+  "name": "statusline",
+  "description": "Enhanced statusline for Claude Code showing model, task, git branch, context window usage, and rate limits (5h/7d) with colored bars",
+  "version": "1.0.0",
+  "author": {
+    "name": "Bartosz Nowicki"
+  },
+  "repository": "https://github.com/BartoszNowicki/claude-code-plugin",
+  "license": "MIT",
+  "keywords": ["statusline", "rate-limit", "context-window", "monitoring"]
+}

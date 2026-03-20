@@ -1,0 +1,19 @@
+{
+  "name": "bn-claude-tools",
+  "owner": {
+    "name": "Bartosz Nowicki",
+    "email": ""
+  },
+  "plugins": [
+    {
+      "name": "statusline",
+      "source": "./plugins/statusline",
+      "description": "Enhanced statusline for Claude Code showing model, task, git branch, context window usage, and rate limits (5h/7d) with colored bars",
+      "version": "1.0.0",
+      "author": {
+        "name": "Bartosz Nowicki"
+      },
+      "keywords": ["statusline", "rate-limit", "context-window", "monitoring"]
+    }
+  ]
+}
