@@ -1,0 +1,11 @@
+{
+  "name": "teams-notify",
+  "description": "Send Microsoft Teams notifications when Claude Code needs user input (AskUserQuestion / permission / Stop)",
+  "version": "1.0.0",
+  "author": {
+    "name": "Bartosz Nowicki"
+  },
+  "repository": "https://github.com/BartoszNowicki/claude-code-plugin",
+  "license": "MIT",
+  "keywords": ["notifications", "teams", "microsoft-teams", "hooks", "askuserquestion"]
+}

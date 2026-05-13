@@ -1,0 +1,31 @@
+{
+  "_comment": {
+    "webhookUrl": "Power Automate Workflow URL from Microsoft Teams (Workflows app -> 'Post to a channel when a webhook request is received').",
+    "enabled": "Master switch. Set false to disable all notifications without removing config.",
+    "events": "Per-event toggles. askUserQuestion = AskUserQuestion tool, permissionPrompt = tool permission requests, idlePrompt = Claude Code idle prompt, stop = Stop hook (turn finished).",
+    "messagePrefix": "Prefix added to every Teams message (e.g. 'Claude Code').",
+    "projectLabel": "Optional project name appended to the prefix. null = derive from cwd basename.",
+    "messageDetail": "'full' = include question/prompt body, 'header-only' = include short summary only, 'minimal' = event type only.",
+    "includeOptions": "When true, include AskUserQuestion options in the message.",
+    "maxBodyChars": "Truncate the message body to this many characters.",
+    "timeoutMs": "HTTP timeout for the webhook POST. The hook is fire-and-forget; do not block Claude Code.",
+    "logFile": "Path to a local log file for debugging. ~ is expanded to the user's home directory.",
+    "throttleMs": "Minimum milliseconds between notifications. 0 = no throttling."
+  },
+  "webhookUrl": "https://prod-XX.westeurope.logic.azure.com/workflows/.../triggers/manual/paths/invoke?api-version=...&sig=...",
+  "enabled": true,
+  "events": {
+    "askUserQuestion": true,
+    "permissionPrompt": true,
+    "idlePrompt": false,
+    "stop": true
+  },
+  "messagePrefix": "Claude Code",
+  "projectLabel": null,
+  "messageDetail": "full",
+  "includeOptions": true,
+  "maxBodyChars": 1500,
+  "timeoutMs": 1500,
+  "logFile": "~/.claude/teams-notify.log",
+  "throttleMs": 0
+}

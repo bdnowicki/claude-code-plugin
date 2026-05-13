@@ -1,0 +1,11 @@
+{
+  "name": "teams",
+  "description": "Coordination skills for Claude Code agent teams — init-team spawns a team lead that delegates work to parallel teammates",
+  "version": "1.0.0",
+  "author": {
+    "name": "Bartosz Nowicki"
+  },
+  "repository": "https://github.com/BartoszNowicki/claude-code-plugin",
+  "license": "MIT",
+  "keywords": ["agent-teams", "coordination", "parallel", "multi-agent"]
+}
