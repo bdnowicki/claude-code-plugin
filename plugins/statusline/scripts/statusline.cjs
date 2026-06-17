@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Claude Code Statusline
-// Shows: model | current task | directory:branch | context | 5h rate limit | 7d rate limit
+// Shows: model·effort | current task | directory:branch | context | 5h rate limit | 7d rate limit
 
 const fs = require('fs');
 const path = require('path');
@@ -118,6 +118,10 @@ process.stdin.on('end', () => {
   try {
     const data = JSON.parse(input);
     const model = data.model?.display_name || 'Claude';
+    // Reasoning effort (low/medium/high/xhigh/max). Live session value,
+    // reflects mid-session /effort changes. Absent if model has no effort param.
+    const effort = data.effort?.level || '';
+    const modelLabel = effort ? `${model} \x1b[36m·${effort}\x1b[0m` : model;
     const dir = data.workspace?.current_dir || process.cwd();
     const session = data.session_id || '';
     const remaining = data.context_window?.remaining_percentage;
@@ -216,9 +220,9 @@ process.stdin.on('end', () => {
     const dirname = path.basename(dir);
     const dirLabel = branch ? `${dirname}:${branch}` : dirname;
     if (task) {
-      process.stdout.write(`\x1b[2m${model}\x1b[0m │ \x1b[1m${task}\x1b[0m │ \x1b[2m${dirLabel}\x1b[0m${ctx}${usageLabel}`);
+      process.stdout.write(`\x1b[2m${modelLabel}\x1b[0m │ \x1b[1m${task}\x1b[0m │ \x1b[2m${dirLabel}\x1b[0m${ctx}${usageLabel}`);
     } else {
-      process.stdout.write(`\x1b[2m${model}\x1b[0m │ \x1b[2m${dirLabel}\x1b[0m${ctx}${usageLabel}`);
+      process.stdout.write(`\x1b[2m${modelLabel}\x1b[0m │ \x1b[2m${dirLabel}\x1b[0m${ctx}${usageLabel}`);
     }
   } catch (e) {
     // Silent fail

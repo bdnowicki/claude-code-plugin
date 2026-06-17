@@ -12,7 +12,7 @@ You are helping the user install or configure the enhanced Claude Code statuslin
 
 ## What this statusline shows
 
-- Model name (e.g. Claude Opus 4.6)
+- Model name with reasoning effort (e.g. Opus 4.8 ·xhigh)
 - Current task from todos (if any)
 - Directory name and git branch
 - Context window usage (colored bar, scaled to 80% effective limit)
