@@ -1,11 +1,11 @@
-# bn-claude-tools
+# claude-toolbelt
 
 A Claude Code plugin marketplace with tools for monitoring and enhancing your Claude Code experience.
 
 ## Installation
 
 ```bash
-/plugin marketplace add bdnowicki/claude-code-plugin
+/plugin marketplace add bdnowicki/claude-toolbelt
 ```
 
 ## Plugins
@@ -22,7 +22,7 @@ Enhanced statusline for Claude Code showing:
 - 7-day rate limit usage with reset date
 
 ```bash
-/plugin install statusline@bn-claude-tools
+/plugin install statusline@claude-toolbelt
 /statusline:setup-statusline install
 ```
 
@@ -39,7 +39,7 @@ Colors change based on usage: green (<50%) -> yellow (<75%) -> orange (<90%) -> 
 Coordination skill for [Claude Code agent teams](https://code.claude.com/docs/en/agent-teams). The `init-team` skill turns the current session into a team lead that breaks a task into independent sub-tasks, spawns teammates in parallel, coordinates them, and synthesizes results.
 
 ```bash
-/plugin install teams@bn-claude-tools
+/plugin install teams@claude-toolbelt
 /teams:init-team review PR #142 for security, performance, and test coverage
 ```
 

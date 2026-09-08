@@ -5,7 +5,7 @@
   "author": {
     "name": "Bartosz Nowicki"
   },
-  "repository": "https://github.com/BartoszNowicki/claude-code-plugin",
+  "repository": "https://github.com/bdnowicki/claude-toolbelt",
   "license": "MIT",
   "keywords": ["agent-teams", "coordination", "parallel", "multi-agent"]
 }
