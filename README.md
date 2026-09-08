@@ -45,24 +45,6 @@ Coordination skill for [Claude Code agent teams](https://code.claude.com/docs/en
 
 Requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` and Claude Code v2.1.32+.
 
-### teams-notify
-
-Send a Microsoft Teams notification whenever Claude Code is waiting on you — questions from the `AskUserQuestion` tool, tool permission prompts, the `Stop` hook (turn finished), and (optionally) idle prompts. Useful when you run Claude Code in the background and want a ping in Teams the moment it needs input.
-
-```bash
-/plugin install teams-notify@bn-claude-tools
-/teams-notify:setup-teams-notify
-```
-
-Requires a Power Automate Workflow URL from Microsoft Teams. See [`plugins/teams-notify/README.md`](plugins/teams-notify/README.md) for the step-by-step guide, security notes, and troubleshooting.
-
-Supported events:
-
-- `AskUserQuestion` — Claude Code asks you a structured question
-- `permission_prompt` — a tool requests permission to run
-- `Stop` — the turn finishes and Claude returns control
-- `idle_prompt` *(optional)* — long idle periods waiting for input
-
 ## Project Structure
 
 ```
@@ -83,22 +65,6 @@ plugins/
     skills/
       init-team/
         SKILL.md            # Team lead coordination skill
-  teams-notify/
-    .claude-plugin/
-      plugin.json           # Plugin manifest
-    config/
-      config.example.json   # Example user config
-    scripts/
-      notify.cjs            # Hook entrypoint
-      config-helper.cjs     # Config loader
-      test-notify.cjs       # Smoke test
-    skills/
-      setup-teams-notify/
-        SKILL.md            # Interactive installer
-      test-teams-notify/
-        SKILL.md            # Verify webhook config
-      uninstall-teams-notify/
-        SKILL.md            # Remove hook wiring
 examples/
   settings.json             # Example configuration
 ```

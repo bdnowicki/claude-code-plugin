@@ -24,16 +24,6 @@
         "name": "Bartosz Nowicki"
       },
       "keywords": ["agent-teams", "coordination", "parallel", "multi-agent"]
-    },
-    {
-      "name": "teams-notify",
-      "source": "./plugins/teams-notify",
-      "description": "Send Microsoft Teams notifications when Claude Code needs user input (AskUserQuestion / permission / Stop)",
-      "version": "1.0.0",
-      "author": {
-        "name": "Bartosz Nowicki"
-      },
-      "keywords": ["notifications", "teams", "microsoft-teams", "hooks", "askuserquestion"]
     }
   ]
 }
